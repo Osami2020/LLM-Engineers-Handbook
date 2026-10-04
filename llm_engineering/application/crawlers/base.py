@@ -1,7 +1,6 @@
-from abc import ABC, abstractmethod
 import time
+from abc import ABC, abstractmethod
 from tempfile import mkdtemp
-
 
 import chromedriver_autoinstaller
 from selenium import webdriver

@@ -2,7 +2,6 @@ from urllib import urlparse
 
 from langchain_community.document_loaders import AsyncHtmlLoader
 from langchain_community.document_transformers.html2text import Html2TextTransformer
-
 from loguru import logger
 
 from llm_engineering.domain.documents import ArticleDocument

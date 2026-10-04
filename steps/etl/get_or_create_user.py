@@ -1,6 +1,6 @@
 from loguru import logger
 from typing_extensions import Annotated
-from zenml import get_step_context, step
+from zenml import step
 
 from llm_engineering import utils
 from llm_engineering.domain.documents import UserDocument
