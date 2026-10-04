@@ -56,3 +56,63 @@ class NoSQLBaseDocument(BaseModel, Generic[T], ABC):
             logger.exception("Failed to instert document.")
 
             return None
+
+    @classmethod
+    def get_or_create(cls:Type[T], **filter_options)->T:
+        collection = _database[cls.get_collection_name()]
+        try:
+            instance= collection.find_one(filter_options)
+            if instance:
+                return cls.from_mongo(instance)
+
+            new_instance=cls(**filter_options)
+            new_instance= new_instance.save()
+
+            return new_instance
+        except errors.OperationFailure:
+            logger.exception(f"Failed to retrieve document with filter options: {filter_options}")
+
+            raise
+    @classmethod
+    def bulk_insert(cls: Type[T], documents: list[T], **kwargs)->bool:
+        collection=_database[cls.get_collection_name()]
+        try:
+            collection.insert_many([doc.to_mongo(**kwargs) for doc in documents])
+            return True
+        except (errors.WriteError, errors.BulkWriteError):
+            logger.error(f"Failed to insert documents of type c{cls.__name__}")
+
+            return False
+
+    @classmethod
+    def find(cls: Type[T], **filter_options)->T|None:
+        collection= _database[cls.get_collection_name()]
+        try: 
+            instance= collection.find_one(filter_options)
+            if instance:
+                return cls.from_mongo(instance)
+
+            return None
+        except errors.OperationFailure:
+            logger.error(f"Failed to retrieve document.")
+
+            return None
+
+
+    @classmethod
+    def bulk_find(cls: Type[T], **filter_options)->list[T]:
+        collection=_database[cls.get_collection_name()]
+        try:
+            instances = collection.find(filter_options)
+            return [document for instance in instances if (document:= cls.from_mongo(instance)) is not None]
+        except errors.OperationFailure:
+            logger.error("Failed to retrieve document.")
+            return []
+
+    @classmethod
+    def get_collection_name(cls:Type[T])->str:
+        if not hasattr(cls, "Settings") or not hasattr(cls.Settings, "name"):
+            raise ImproperlyConfigured(
+                "Document should define a Settings configuration class with the name of the collection"
+            )
+        return cls.Settings.name
