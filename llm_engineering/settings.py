@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     # --- Required settings even when working locally. ---
 
     # OpenAI API
-    OPENAI_MODEL_ID: str = "gpt-4o-mini"
+    OPENAI_MODEL_ID: str = "gpt-6-luna"
     OPENAI_API_KEY: str | None = None
 
     # Huggingface API

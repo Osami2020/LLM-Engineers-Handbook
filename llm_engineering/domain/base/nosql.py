@@ -6,10 +6,11 @@ from loguru import logger
 from pydantic import UUID4, BaseModel, Field
 from pymongo import errors
 
+from llm_engineering.domain.exceptions import ImproperlyConfigured
 from llm_engineering.infrastructure.db.mongo import connection
-from llm_engineering.settings import Settings
+from llm_engineering.settings import settings
 
-_database = connection.get_database(Settings.DATABASE_NAME)
+_database = connection.get_database(settings.DATABASE_NAME)
 
 T = TypeVar("T", bound="NoSQLBaseDocument")
 
@@ -58,24 +59,25 @@ class NoSQLBaseDocument(BaseModel, Generic[T], ABC):
             return None
 
     @classmethod
-    def get_or_create(cls:Type[T], **filter_options)->T:
+    def get_or_create(cls: Type[T], **filter_options) -> T:
         collection = _database[cls.get_collection_name()]
         try:
-            instance= collection.find_one(filter_options)
+            instance = collection.find_one(filter_options)
             if instance:
                 return cls.from_mongo(instance)
 
-            new_instance=cls(**filter_options)
-            new_instance= new_instance.save()
+            new_instance = cls(**filter_options)
+            new_instance = new_instance.save()
 
             return new_instance
         except errors.OperationFailure:
             logger.exception(f"Failed to retrieve document with filter options: {filter_options}")
 
             raise
+
     @classmethod
-    def bulk_insert(cls: Type[T], documents: list[T], **kwargs)->bool:
-        collection=_database[cls.get_collection_name()]
+    def bulk_insert(cls: Type[T], documents: list[T], **kwargs) -> bool:
+        collection = _database[cls.get_collection_name()]
         try:
             collection.insert_many([doc.to_mongo(**kwargs) for doc in documents])
             return True
@@ -85,10 +87,10 @@ class NoSQLBaseDocument(BaseModel, Generic[T], ABC):
             return False
 
     @classmethod
-    def find(cls: Type[T], **filter_options)->T|None:
-        collection= _database[cls.get_collection_name()]
-        try: 
-            instance= collection.find_one(filter_options)
+    def find(cls: Type[T], **filter_options) -> T | None:
+        collection = _database[cls.get_collection_name()]
+        try:
+            instance = collection.find_one(filter_options)
             if instance:
                 return cls.from_mongo(instance)
 
@@ -98,19 +100,18 @@ class NoSQLBaseDocument(BaseModel, Generic[T], ABC):
 
             return None
 
-
     @classmethod
-    def bulk_find(cls: Type[T], **filter_options)->list[T]:
-        collection=_database[cls.get_collection_name()]
+    def bulk_find(cls: Type[T], **filter_options) -> list[T]:
+        collection = _database[cls.get_collection_name()]
         try:
             instances = collection.find(filter_options)
-            return [document for instance in instances if (document:= cls.from_mongo(instance)) is not None]
+            return [document for instance in instances if (document := cls.from_mongo(instance)) is not None]
         except errors.OperationFailure:
             logger.error("Failed to retrieve document.")
             return []
 
     @classmethod
-    def get_collection_name(cls:Type[T])->str:
+    def get_collection_name(cls: Type[T]) -> str:
         if not hasattr(cls, "Settings") or not hasattr(cls.Settings, "name"):
             raise ImproperlyConfigured(
                 "Document should define a Settings configuration class with the name of the collection"

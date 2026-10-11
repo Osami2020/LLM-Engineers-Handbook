@@ -1,4 +1,4 @@
-from urllib import urlparse
+from urllib.parse import urlparse
 
 from langchain_community.document_loaders import AsyncHtmlLoader
 from langchain_community.document_transformers.html2text import Html2TextTransformer
