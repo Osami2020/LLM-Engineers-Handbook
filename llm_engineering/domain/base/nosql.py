@@ -34,7 +34,7 @@ class NoSQLBaseDocument(BaseModel, Generic[T], ABC):
         return cls(**dict(data, id=id))
 
     def to_mongo(self: T, **kwargs) -> dict:
-        exclude_unset = kwargs.pop("exclude_unset:, False")
+        exclude_unset = kwargs.pop("exclude_unset", False)
         by_alias = kwargs.pop("by_alias", True)
 
         parsed = self.model_dump(exclude_unset=exclude_unset, by_alias=by_alias, **kwargs)
@@ -42,10 +42,10 @@ class NoSQLBaseDocument(BaseModel, Generic[T], ABC):
         if "_id" not in parsed and "id" in parsed:
             parsed["_id"] = str(parsed.pop("id"))
 
-            for key, value in parsed.items():
-                if isinstance(value, UUID4):
-                    parsed[key] = str(value)
-            return parsed
+        for key, value in parsed.items():
+            if isinstance(value, uuid.UUID):
+                parsed[key] = str(value)
+        return parsed
 
     def save(self: T, **kwargs) -> T | None:
         collection = _database[self.get_collection_name()]

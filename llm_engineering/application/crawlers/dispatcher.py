@@ -39,9 +39,9 @@ class CrawlerDispatcher:
         self.crawlers[r"https://(www\.)?{}/*".format(re.escape(domain))] = crawler
 
     def get_crawler(self, url: str) -> BaseCrawler:
-        for pattern, crawler in self._crawlers.items():
+        for pattern, crawler in self.crawlers.items():
             if re.match(pattern, url):
                 return crawler()
-            else:
-                logger.warning(f"No crawler found for {url}. Defaulting to CustomArticleCrawler.")
-            return CustomArticleCrawler
+        else:
+            logger.warning(f"No crawler found for {url}. Defaulting to CustomArticleCrawler.")
+            return CustomArticleCrawler()

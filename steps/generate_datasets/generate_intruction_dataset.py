@@ -1,4 +1,6 @@
 
+from typing import Any
+
 from typing_extensions import Annotated
 from zenml import ArtifactConfig, get_step_context, step
 
@@ -8,7 +10,7 @@ from llm_engineering.domain.types import DataCategory
 
 
 @step
-def generate_instruction_dataset(
+def generate_intruction_dataset(
     prompts: Annotated[dict[DataCategory, list[GenerateDatasetSamplesPrompt]], "prompts"],
 ) -> Annotated[
     InstructTrainTestSplit,
@@ -24,7 +26,7 @@ def generate_instruction_dataset(
     return datasets
 
 
-def _get_metadata_instruct_dataset(datasets: InstructTrainTestSplit) -> dict[str, any]:
+def _get_metadata_instruct_dataset(datasets: InstructTrainTestSplit) -> dict[str, Any]:
     instruct_dataset_categories = list(datasets.train.keys())
     train_num_samples = {
         category: instruct_dataset.num_samples for category, instruct_dataset in datasets.train.items()
