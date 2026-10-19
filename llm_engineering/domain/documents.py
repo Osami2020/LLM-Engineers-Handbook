@@ -9,7 +9,7 @@ from .types import DataCategory
 
 class Document(NoSQLBaseDocument, ABC):
     content: dict
-    platform: dict
+    platform: str
     author_id: UUID4 = Field(alias="author_id")
     author_full_name: str = Field(alias="author_full_name")
 

@@ -22,12 +22,12 @@ def crawl_links(user: UserDocument, links: list[str]) -> Annotated[list[str], "c
         successful_crawls += successful_crawl
         metadata = _add_to_metadata(metadata, crawled_domain, successful_crawl)
 
-        step_context = get_step_context()
-        step_context.add_output_metadata(output_name="crawled_links", metadata=metadata)
+    step_context = get_step_context()
+    step_context.add_output_metadata(output_name="crawled_links", metadata=metadata)
 
-        logger.info(f"Successfully crawled {successful_crawls}/{len(links)} link(s).")
+    logger.info(f"Successfully crawled {successful_crawls}/{len(links)} link(s).")
 
-        return links
+    return links
 
 
 def _crawl_link(dispatcher: CrawlerDispatcher, link: str, user: UserDocument) -> tuple[bool, str]:
@@ -47,7 +47,7 @@ def _crawl_link(dispatcher: CrawlerDispatcher, link: str, user: UserDocument) ->
 def _add_to_metadata(metadata: dict, domain: str, successful_crawl: bool) -> dict:
     if domain not in metadata:
         metadata[domain] = {}
-        metadata[domain]["successful"] = metadata.get(domain, {}).get("successful", 0) + successful_crawl
-        metadata[domain]["total"] = metadata.get(domain, {}).get("total", 0) + 1
+    metadata[domain]["successful"] = metadata.get(domain, {}).get("successful", 0) + successful_crawl
+    metadata[domain]["total"] = metadata.get(domain, {}).get("total", 0) + 1
 
-        return metadata
+    return metadata

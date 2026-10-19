@@ -1,3 +1,6 @@
+import platform
+import shutil
+import sys
 import time
 from abc import ABC, abstractmethod
 from tempfile import mkdtemp
@@ -5,6 +8,7 @@ from tempfile import mkdtemp
 import chromedriver_autoinstaller
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 
 from llm_engineering.domain.documents import NoSQLBaseDocument
 
@@ -16,10 +20,21 @@ class BaseCrawler(ABC):
     def extract(self, link: str, **kwargs) -> None: ...
 
 
-# check if the current version of chromedriver exists
-# and if it doesn't, downloads it automatically, then
-# adds to path
-chromedriver_autoinstaller.install()
+# Google ships no Chrome/chromedriver for Linux ARM and Selenium Manager doesn't support it,
+# so there we use the distro's Chromium driver (apt: chromium-driver, snap: chromium.chromedriver).
+IS_LINUX_ARM = sys.platform.startswith("linux") and platform.machine() in ("aarch64", "arm64")
+
+if IS_LINUX_ARM:
+    chromedriver_path = shutil.which("chromedriver") or shutil.which("chromium.chromedriver")
+    if chromedriver_path is None:
+        raise RuntimeError(
+            "chromedriver not found on PATH. On Linux ARM install Chromium's driver: `sudo apt install chromium chromium-driver`."
+        )
+else:
+    # check if the current version of chromedriver exists
+    # and if it doesn't, downloads it automatically, then
+    # adds to path
+    chromedriver_autoinstaller.install()
 
 
 class BaseSeleniumCrawler(BaseCrawler, ABC):
@@ -43,7 +58,8 @@ class BaseSeleniumCrawler(BaseCrawler, ABC):
         self.set_extra_driver_options(options)
 
         self.scroll_limit = scroll_limit
-        self.driver = webdriver.Chrome(options=options)
+        service = Service(executable_path=chromedriver_path) if IS_LINUX_ARM else None
+        self.driver = webdriver.Chrome(options=options, service=service)
 
     def set_extra_driver_options(self, options: Options) -> None:
         pass

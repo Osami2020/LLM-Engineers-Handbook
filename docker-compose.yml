@@ -1,6 +1,6 @@
 services:
   mongo:
-    image: mongo:7.0
+    image: mongo:8.2
     container_name: "llm_engineering_mongo"
     logging:
       options:
