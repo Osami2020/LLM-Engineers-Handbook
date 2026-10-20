@@ -61,10 +61,9 @@ class Settings(BaseSettings):
 
     # RAG
     TEXT_EMBEDDING_MODEL_ID: str = "sentence-transformers/all-MiniLM-L6-v2"
-    RERANKING_CROSS_ENCODER_MODEL_ID: str = "cross-encoder/ms-marco-MiniLM-L-4-v2"
-    RAG_MODEL_DEVICE: str = "cpu"
-
+    RERANKING_CROSS_ENCODER_MODEL_ID
     # LinkedIn Credentials
+
     LINKEDIN_USERNAME: str | None = None
     LINKEDIN_PASSWORD: str | None = None
 

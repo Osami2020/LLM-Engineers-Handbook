@@ -14,5 +14,11 @@ if __name__ == "__main__":
     instruction = "Represent the title of an article about AI:"
 
     embeddings = model.encode([[instruction, sentence]])
+    sentence2 = "Agentic AI in details next"
+    instruction2 = "Talk about the chapter continuation of an LLM Engineering book:"
+
+    embeddings2 = model.encode(([instruction2,sentence2]))
     print(embeddings.shape)  # noqa
+    similarities = model.similarity(embeddings, embeddings2)
+    print(similarities)
     # Output: (1, 768)

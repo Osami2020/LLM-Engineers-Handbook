@@ -12,7 +12,7 @@
         "notebook.source.fixAll": "explicit",
         "notebook.source.organizeImports": "explicit"
     },
-    "python-envs.defaultEnvManager": "ms-python.python:venv",
+    "python-envs.defaultEnvManager": "ms-python.python:poetry",
     "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
-    "python-envs.defaultPackageManager": "ms-python.python:pip",
+    "python-envs.defaultPackageManager": "ms-python.python:poetry",
 }
