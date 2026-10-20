@@ -1,6 +1,9 @@
 services:
   mongo:
-    image: mongo:8.2
+    # Pinned on purpose: 8.2.12 runs on both Windows (Docker Desktop) and Linux kernel 7.0.x.
+    # 7.0 can't open data written by 8.x, and 8.3+/latest exit on Linux kernels 6.19-7.0.13
+    # (https://jira.mongodb.org/browse/SERVER-125742).
+    image: mongo:8.2.12
     container_name: "llm_engineering_mongo"
     logging:
       options:
