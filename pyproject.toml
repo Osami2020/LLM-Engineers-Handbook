@@ -16,7 +16,14 @@ rich = "^13.7.1"
 numpy = "^1.26.4"
 poethepoet = "0.29.0"
 datasets = "^3.0.1"
-torch = "2.2.2"
+torch = { version = "2.14.1", source = "pytorch-cu130" }
+# torch's cuda-toolkit 13.0.3 pins these; without the pins Poetry also locks newer
+# CUDA 13.4 copies on Linux and installs both into the same folder.
+nvidia-cublas = { version = "13.1.1.3", markers = "sys_platform == 'linux'" }
+nvidia-cuda-nvrtc = { version = "13.0.88", markers = "sys_platform == 'linux'" }
+# torch 2.14 needs setuptools >= 77.0.3; zenml 0.74 imports pkg_resources, which
+# setuptools 82+ no longer ships.
+setuptools = ">=77.0.3,<82"
 
 # Digital data ETL
 selenium = "^4.21.0"
@@ -56,6 +63,14 @@ s3fs = ">2022.3.0"
 aws-profile-manager = "^0.7.3"
 kubernetes = "^30.1.0"
 sagemaker-huggingface-inference-toolkit = "^2.4.0"
+
+
+# CUDA 13.0 torch wheels (Linux x86_64/aarch64 and Windows). "explicit" means
+# only packages that name this source (torch) are fetched from it.
+[[tool.poetry.source]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+priority = "explicit"
 
 
 [build-system]
