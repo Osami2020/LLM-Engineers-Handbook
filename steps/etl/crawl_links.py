@@ -39,7 +39,7 @@ def _crawl_link(dispatcher: CrawlerDispatcher, link: str, user: UserDocument) ->
 
         return (True, crawler_domain)
     except Exception as e:
-        logger.info(f"An error occured while crawling: {e!s}")
+        logger.error(f"An error occurred while crawling: {e!s}")
 
         return (False, crawler_domain)
 
