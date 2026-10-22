@@ -37,6 +37,9 @@ class CustomArticleCrawler(BaseCrawler):
 
         user = kwargs["user"]
         instance = self.model(
-            content=content, link=link, platform=platform, author_id=user.id, author_full_name=user.full_name
+            content=content,
+            link=link, 
+            platform=platform, 
+            author_id=user.id, author_full_name=user.full_name
         )
         instance.save()
