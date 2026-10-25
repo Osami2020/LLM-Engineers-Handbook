@@ -32,4 +32,16 @@ def chunk_and_embed(
         chunks= ChunkingDispatcher.dispatch(document)
         metadata["chunking"] = _add_chunks_metadata(chunks, metadata["chunking"])
 
-        for batched_chaunks in utils.misc.batch(chunks, 10)
+        for batched_chaunks in utils.misc.batch(chunks, 10):
+            embedded_chunks.extend(batched_embedded_chunks)
+
+    metadata["embedding"] = _add_embeddings_metadata(embedded_chunks, metadata["embedding"])
+
+    metadata["num_chunks"]=len(embedded_chunks)
+    metadata["num_embedded_chunks"]= len(embedded_chunks)
+
+    step_context= get_step_context()
+    step_context.add_output_metadata(output_name="embedded documents", metadata=metadata)
+
+
+    return embedded_chunks
