@@ -17,18 +17,16 @@ from llm_engineering.infrastructure.db.qdrant import connection
 
 T = TypeVar("T", bound="VectorBaseDocument")
 
+
 class VectorBaseDocument(BaseModel, Generic[T], ABC):
     id: UUID4 = Field(default_factory=uuid.uuid4)
 
-    @classmethod 
-    def from_record(cls: Type[T], point: Record)-> T:
-        _id=UUID(point.id, version=4)
-        payload= point.payload or {}
+    @classmethod
+    def from_record(cls: Type[T], point: Record) -> T:
+        _id = UUID(point.id, version=4)
+        payload = point.payload or {}
 
-        atrributes= {
-            "id": _id,
-            **payload
-        }
+        atrributes = {"id": _id, **payload}
         if cls._has_class_attribute("embedding"):
             payload["embedding"] = point.vector or None
 
@@ -36,27 +34,27 @@ class VectorBaseDocument(BaseModel, Generic[T], ABC):
 
     def to_point(self: T, **kwargs) -> PointStruct:
         exclude_unset = kwargs.pop("exclude_unset", False)
-        by_alias=  kwargs.pop("by_alias", True)
+        by_alias = kwargs.pop("by_alias", True)
 
-        payload = self.model_dump(exclude_unset=exclude_unset, by_alias = by_alias, **kwargs)
+        payload = self.model_dump(exclude_unset=exclude_unset, by_alias=by_alias, **kwargs)
 
-        _id= str(payload.pop("id"))
+        _id = str(payload.pop("id"))
         vector = payload.pop("embedding", {})
         if vector and isinstance(vector, np.ndarray):
             vector = vector.tolist()
 
         return PointStruct(id=_id, vector=vector, payload=payload)
+
     @classmethod
-    def bulk_insert(cls:Type[T], documents: list["VectorBaseDocument"])-> bool:
+    def bulk_insert(cls: Type[T], documents: list["VectorBaseDocument"]) -> bool:
         try:
             cls._bulk_insert(documents)
         except exceptions.UnexpectedResponse:
             logger.info(
                 f"Collection '{cls.get_collection_name()}' does not exist. Trying to create the collection and sreinsert the documents."
-
             )
             cls.create_collection()
-            try: 
+            try:
                 cls._bulk_insert(documents)
             except exceptions.UnexpectedResponse:
                 logger.error(f"Failed to insert documents in '{cls.get_collection_name()}'.")
@@ -64,14 +62,15 @@ class VectorBaseDocument(BaseModel, Generic[T], ABC):
             return True
 
     @classmethod
-    def _bulk_insert(cls: Type[T], documents: list["VectorBaseDocument"])-> None:
+    def _bulk_insert(cls: Type[T], documents: list["VectorBaseDocument"]) -> None:
         points = [doc.to_point() for doc in documents]
 
-        connection.upsert(collection_name = cls.get_collection_name(), points = points)
+        connection.upsert(collection_name=cls.get_collection_name(), points=points)
 
     @classmethod
-    def get_collection_name(cls:Type[T]) -> str:
+    def get_collection_name(cls: Type[T]) -> str:
         if not hasattr(cls, "config") or not hasattr(cls.Config, "name"):
-            raise ImproperlyConfigured("The class should define a Config class with" "the 'name' property that reflects the collection's name."
-            ) 
+            raise ImproperlyConfigured(
+                "The class should define a Config class with" "the 'name' property that reflects the collection's name."
+            )
         return cls.Config.name

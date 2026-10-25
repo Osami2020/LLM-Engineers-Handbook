@@ -6,10 +6,10 @@ from llm_engineering.application import utils
 from llm_engineering.domain.base import VectorBaseDocument
 
 
-@step 
+@step
 def load_to_vector_db(
     documents: Annotated[list, "documents"],
-)-> bool:
+) -> bool:
     logger.info(f"Loading {len(documents)} documents into the vector database.")
 
     grouped_documents = VectorBaseDocument.group_by_class(documents)
