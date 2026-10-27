@@ -48,5 +48,14 @@ class EmbeddingModelSingleton(metaclass=SingletonMeta):
         return self._model.tokenizer
 
     def __call__(
-            slel
-    )
+            self, input_text:str | list[str], to_list : bool =True)-> NDArray[np.float32] |list[float] |list[list[float]]:
+        try:
+            embeddings = self._model.encode(input_text)
+        except Exception:
+            logger.error(f"Error generating embeddings for {self._model_id} and {input_text=}")
+
+            return [] if to_list else np.array([])
+        if to_list:
+            embeddings = embeddings.to_list()
+
+        return embeddings
